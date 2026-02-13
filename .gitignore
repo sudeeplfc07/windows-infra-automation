@@ -1,0 +1,58 @@
+# -------------------------
+# OS & Editor Noise
+# -------------------------
+.DS_Store
+._*
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.code-workspace
+
+# -------------------------
+# Logs / Temp / Outputs
+# -------------------------
+*.log
+*.tmp
+*.bak
+*.old
+temp/
+tmp/
+**/AutopilotUploadLogs/       # hardware hash script output folder (if ever copied into repo)
+
+# -------------------------
+# Packaging / Artifacts
+# -------------------------
+*.intunewin
+*.zip
+*.7z
+*.tar
+*.gz
+
+# -------------------------
+# Defensive: Secrets/Creds (keep repo clean)
+# -------------------------
+secrets/
+*.secret
+*.env
+*.env.*
+*.pfx
+*.pem
+*.key
+*.cer
+*.crt
+local.config.ps1              # per-user overrides (if you add one later)
+
+# -------------------------
+# Language/Tooling (future-proofing)
+# -------------------------
+__pycache__/
+*.pyc
+node_modules/
+dist/
+build/
+
+# -------------------------
+# Misc
+# -------------------------
+$RECYCLE.BIN/
