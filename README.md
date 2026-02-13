@@ -1,6 +1,6 @@
 # Windows Infrastructure Automation Toolkit
 
-> **Production-grade PowerShell automation suite for Windows endpoint management and Microsoft 365 administration**
+PowerShell scripts for Windows endpoint management and Microsoft 365 administration.
 
 <div align="center">
 
@@ -13,356 +13,285 @@
 
 ---
 
-## 🎯 Overview
 
-This toolkit contains **battle-tested PowerShell scripts** developed through real-world enterprise deployments, including:
+## Overview
 
-- ✅ **Multi-site Intune/Autopilot deployments** across 200+ endpoints
-- ✅ **Zero-downtime migrations** with minimal user impact  
-- ✅ **Automated compliance enforcement** meeting enterprise security standards
-- ✅ **Endpoint lifecycle management** from provisioning to decommissioning
+Collection of PowerShell scripts for automating Windows endpoint configuration, Microsoft 365 identity management, application removal, and Windows Autopilot enrollment.
 
-All scripts are production-ready, well-documented, and designed for use in enterprise environments with strict security and compliance requirements. It is recommended to test and edit the script as per your requirement before deployment.
+## Repository Structure
 
----
+### [Browser-Link](./Browser-Link/)
+Create URL application shortcuts (.lnk with Edge app window, .url fallback) with persistent icons.
 
-## 📦 What's Inside
-
-### 🌐 [Browser-Link](./Browser-Link/)
-**Deploy browser shortcuts as desktop applications at scale**
-
-Create and manage URL application shortcuts with persistent icons across your Windows environment.
-
-**Real-World Use Cases:**
-- ✅ Deploy SaaS applications as desktop shortcuts to 100+ users
-- ✅ Maintain consistent user experience during cloud application migrations
-- ✅ Support legacy app transitions to web-based platforms
-- ✅ Reduce helpdesk tickets with familiar desktop shortcuts
+**Scripts:**
+- `InstallApp.ps1` - Creates browser shortcuts in Start Menu and Public Desktop
+- `UninstallApp.ps1` - Removes browser shortcuts
+- `install.cmd` - Batch wrapper for installation with logging
+- `uninstall.cmd` - Batch wrapper for removal with logging
 
 **Key Features:**
-- Edge app window mode (opens as standalone app, not browser tab)
-- Icon persistence across Windows updates
-- Silent installation/uninstallation via scripts
-- Intune deployment ready (Win32 app packaging compatible)
-- .lnk format with .url fallback support
+- Edge app window mode (opens as standalone app, no browser UI)
+- Fallback to default browser if Edge not found
+- Persistent icon storage in ProgramData
+- Supports both .lnk and .url formats
+- All users deployment (Start Menu and Public Desktop)
 
-📖 **[Read Full Documentation →](./Browser-Link/README.md)**
+[Read Documentation →](./Browser-Link/README.md)
 
 ---
 
-### 🔑 [Hardwarehash Export](./Hardwarehash%20Export/)
-**Automated Windows Autopilot enrollment and device management**
+### [Hardwarehash Export](./Hardwarehash%20Export/)
+Export Windows Autopilot hardware hash (HWID) and upload directly to Microsoft Intune via Microsoft Graph API.
 
-Collect and upload Windows Autopilot Hardware IDs (HWID) for zero-touch device deployment.
-
-**Real-World Use Cases:**
-- ✅ Bulk device enrollment for Autopilot (500+ devices)
-- ✅ Direct upload to Microsoft Graph API (eliminates manual CSV import)
-- ✅ Migration from traditional imaging to modern cloud management
-- ✅ Streamlined provisioning for new device deployments
+**Scripts:**
+- `HardwareHash_Export.ps1` - Main script for HWID collection and upload
 
 **Key Features:**
-- Local CSV export for offline scenarios
-- Direct Microsoft Graph API integration (app-only authentication)
-- Comprehensive error handling and logging
-- Batch processing support for large deployments
-- Group tag assignment for device categorization
+- Collects hardware hash via MDM Bridge
+- App-only authentication (Client Secret or Certificate)
+- Direct upload to Autopilot via Microsoft Graph API
+- Optional CSV export
+- Group Tag assignment support
+- Auto-relaunches under PowerShell 7 if available
+- Retry logic for transient errors (429, 502, 503, 504)
 
-**Impact:** Reduced device provisioning time from 4 hours to 15 minutes per device
-
-📖 **[Read Full Documentation →](./Hardwarehash%20Export/README.md)**
-
----
-
-### 🪟 [Windows Management Scripts](./Windows/)
-**Essential Windows configuration, cleanup, and compliance automation**
-
-A collection of production-ready scripts for Windows endpoint management and security hardening.
-
-**Scripts Included:**
-
-#### 🧹 **Default App Removal**
-Remove bloatware and unwanted default Windows applications from deployments.
-
-**Use Cases:**
-- Clean Windows 10/11 deployments before user delivery
-- Enforce corporate application policies
-- Reduce attack surface by removing unused software
-- Improve performance by eliminating bloatware
+[Read Documentation →](./Hardwarehash%20Export/README.md)
 
 ---
 
-#### 🔐 **Windows Hello Disable/Remove**
-Manage Windows Hello configuration for compliance requirements.
+### [Windows](./Windows/)
+Windows configuration, cleanup, and compliance scripts.
 
-**Use Cases:**
-- Disable Windows Hello where biometric authentication isn't permitted
-- Remove Windows Hello infrastructure for regulatory compliance
-- Enforce password-only authentication policies
-- Prepare devices for environments with specific security mandates
+#### Profile & Identity Cleanup
+**Script:** `CleanUP-WindowsProfile.ps1`
 
----
+Cleans cached Microsoft 365 identity data and prevents auto MDM enrollment prompts.
 
-#### 👤 **Profile & Identity Cleanup**
-User profile remediation and credential cleanup automation.
+**What It Does:**
+- Disables auto MDM enrollment policy
+- Clears AAD Broker, OneAuth/WAM, Office identity/licensing caches
+- Clears Outlook AutoDiscover cache (filesystem + registry)
+- Removes Outlook profiles (optional)
+- Purges Windows Credentials by pattern matching
+- Shows dsregcmd join state (read-only)
 
-**Use Cases:**
-- Clean orphaned user profiles after migrations
-- Remove cached credentials during tenant transitions
-- Remediate corrupt user profiles
-- Prepare devices for new user assignments
+[Read Documentation →](./Windows/Profile-Identity-Cleanup/README.md)
 
 ---
 
-📖 **[Read Full Documentation →](./Windows/README.md)**
+#### Default App Removal
+**Script:** `Uninstallapps-Full.ps1`
+
+Removes OEM bloatware and Microsoft consumer applications.
+
+**Target Applications:**
+- HP Wolf Security stack
+- HP/Poly software (Notifications, Camera Pro, Lens, Support Assistant, myHP)
+- Microsoft consumer apps (Xbox, Gaming, Bing apps, Solitaire, Candy Crush, Zune)
+
+**Removal Methods:**
+- MSI uninstall (by GUID and DisplayName)
+- AppX package removal (AllUsers + per-user + deprovisioning)
+- Edge PWA cleanup
+- Service and folder cleanup
+
+[Read Documentation →](./Windows/Default-App-Removal/README.md)
 
 ---
 
-## 🚀 Quick Start Guide
+#### Windows Hello Management
+**Script:** `Disable-WindowsHello.ps1`
 
-### Prerequisites
+Disables Windows Hello for Business and removes existing PIN/NGC data.
 
-Before using these scripts, ensure you have:
-```powershell
-# PowerShell version (5.1 or later)
-$PSVersionTable.PSVersion
+**What It Does:**
+- Sets registry policies to disable WHfB, convenience PIN, biometrics, and sign-in options UI
+- Optionally removes NGC container (existing PIN/keys)
+- Stops/restarts Passport services
+- Takes ownership and removes NGC folder with optional backup
 
-# Required modules (install as needed)
-Install-Module -Name Microsoft.Graph -Scope CurrentUser
-Install-Module -Name WindowsAutopilotIntune -Scope CurrentUser
+[Read Documentation →](./Windows/Windows-Hello-Management/README.md)
 
-# Administrator privileges
-# Most scripts require elevated PowerShell prompt
-```
+---
 
-### Installation
-```powershell
-# 1. Clone the repository
+## Prerequisites
+
+### General Requirements
+- Windows 10 or Windows 11
+- PowerShell 5.1 or later (PowerShell 7 preferred for some scripts)
+- Administrator privileges (required for most scripts)
+
+### Script-Specific Requirements
+
+**Hardwarehash Export:**
+- Microsoft.Graph.Authentication module (auto-installed)
+- Azure AD app registration with `DeviceManagementServiceConfig.ReadWrite.All` permission
+- Elevated PowerShell (for MDM Bridge access)
+
+**Browser-Link:**
+- Microsoft Edge (preferred, optional unless `-StrictEdge`)
+- .ico file for custom icon
+
+**Windows Scripts:**
+- No additional requirements
+
+## Quick Start
+
+### Clone Repository
+```bash
 git clone https://github.com/sudeeplfc07/windows-infra-automation.git
 cd windows-infra-automation
-
-# 2. Explore available scripts
-Get-ChildItem -Recurse -Filter "*.ps1" | Select-Object FullName
-
-# 3. Navigate to specific folder
-cd "Browser-Link"
-# or
-cd "Hardwarehash Export"
-# or
-cd "Windows"
 ```
 
-### Example Usage Scenarios
-
-# Deploy via Intune as Win32 app (see Browser-Link README)
-```
-
-#### Scenario 1: Bulk Autopilot Enrollment
+### Navigate to Script Folder
 ```powershell
-# Navigate to Hardwarehash Export folder
+# Browser shortcuts
+cd Browser-Link
+
+# Autopilot enrollment
 cd "Hardwarehash Export"
 
-# Export HWID to CSV (for offline processing)
-.\Get-WindowsAutopilotInfo.ps1 -OutputFile "C:\Autopilot\devices.csv"
+# Windows management
+cd Windows
+```
 
-# OR upload directly to Intune with group tag
-.\Upload-AutopilotHWID.ps1 `
-    -GroupTag "Corporate-Laptops" `
+### Run Scripts
+```powershell
+# Elevated PowerShell required for most scripts
+# Right-click PowerShell → Run as Administrator
+
+# Example: Create browser shortcut
+.\InstallApp.ps1 -Name "App" -Url "https://example.com" -IconLocation ".\app.ico" -UseAppWindow
+
+# Example: Upload Autopilot HWID
+.\AutopilotUpload-AppOnly.ps1 -TenantId "xxx" -ClientId "xxx" -ClientSecret "xxx" -GroupTag "Corporate"
+
+# Example: Clean M365 identity
+.\Clean-M365Identity.ps1
+
+# Example: Remove bloatware
+.\Uninstallapps-Full.ps1
+
+# Example: Disable Windows Hello
+.\Disable-WindowsHello.ps1
+```
+
+## Documentation
+
+Each folder contains a README.md with:
+- Script descriptions and parameters
+- Detailed usage examples
+- Prerequisites and requirements
+- Troubleshooting guidance
+
+## Logging
+
+Scripts create logs in their respective locations:
+
+| Script | Log Location |
+|--------|--------------|
+| AutopilotUpload-AppOnly.ps1 | `%TEMP%\AutopilotUploadLogs\` |
+| InstallApp.ps1 / UninstallApp.ps1 | `%ProgramData%\GenericApp\` |
+| Uninstallapps-Full.ps1 | `C:\ProgramData\Intune\Logs\` (configurable) |
+| Other Windows scripts | Console output only |
+
+## Common Use Cases
+
+### Autopilot Device Enrollment
+```powershell
+# Collect HWID and upload to Intune
+cd "Hardwarehash Export"
+.\AutopilotUpload-AppOnly.ps1 `
     -TenantId "your-tenant-id" `
-    -AppId "your-app-id"
+    -ClientId "your-app-id" `
+    -ClientSecret "your-secret" `
+    -GroupTag "Corporate-Laptops"
 ```
 
-#### Scenario 3: Clean New Windows Deployment
+### Deploy Web Application Shortcuts
 ```powershell
-# Navigate to Windows folder
-cd "Windows"
-
-# Remove default Windows apps
-.\Remove-DefaultApps.ps1 -AppList @("CandyCrush", "Xbox", "Spotify")
-
-# Disable Windows Hello
-.\Disable-WindowsHello.ps1 -Confirm:$false
-
-# Clean orphaned profiles
-.\Cleanup-UserProfiles.ps1 -DaysInactive 90
+# Create Salesforce shortcut
+cd Browser-Link
+.\InstallApp.ps1 `
+    -Name "Salesforce" `
+    -Url "https://company.salesforce.com" `
+    -IconLocation ".\salesforce.ico" `
+    -UseAppWindow
 ```
 
----
+### Tenant-to-Tenant Migration Cleanup
+```powershell
+# Clean M365 identity after migration
+cd Windows
+.\Clean-M365Identity.ps1
+```
 
-## 📊 Real-World Deployment Statistics
+### Corporate Image Cleanup
+```powershell
+# Remove bloatware from new devices
+cd Windows
+.\Uninstallapps-Full.ps1
+```
 
-These scripts have been battle-tested in production environments:
+### HIPAA Compliance
+```powershell
+# Disable biometric authentication
+cd Windows
+.\Disable-WindowsHello.ps1
+```
 
-| Deployment | Scale | Success Rate | Time Saved |
-|------------|-------|--------------|------------|
-| **Autopilot Migration** | 200+ devices | 100% | 1,800 hours |
-| **App Cleanup Automation** | 200+ endpoints | 100% | 950 hours |
-| **Browser Shortcuts** | 200+ users × 15 apps | 98% | 500 hours |
-| **Windows Hello Enforcement** | Healthcare org (300 devices) | 100% | N/A (Compliance) |
-| **Profile Remediation** | 150+ corrupt profiles | 92% | 600 hours |
+## Security Notes
 
-**Total Impact:**
-- ⏱️ **3,850+ hours saved** through automation
-- 📉 **85% reduction** in helpdesk tickets for common issues
-- 🎯 **100% compliance** achieved for security requirements
-- 😊 **95% user satisfaction** with minimal disruption
+- **No Hardcoded Credentials** - All scripts use parameters for sensitive data
+- **App-Only Authentication** - Autopilot script supports Azure AD app authentication
+- **Audit Logging** - All operations logged for compliance
+- **Least Privilege** - Scripts request minimum required permissions
+- **Error Handling** - Comprehensive error handling with graceful failures
 
----
+## Exit Codes
 
-## 🛡️ Security & Compliance
+Scripts use standard exit codes:
+- `0` - Success
+- `1` - General failure
+- `12` - Authentication failure (Autopilot script)
+- `21` - Data collection failure (Autopilot script)
+- `30` - Upload failure (Autopilot script)
 
-All scripts follow enterprise security best practices:
+## Contributing
 
-### Security Features
-- ✅ **No hardcoded credentials** - All authentication via secure methods
-- ✅ **App-only authentication** - Supports Azure AD app registrations
-- ✅ **Detailed logging** - Audit trail for all operations
-- ✅ **Error handling** - Graceful failure with rollback capabilities
-- ✅ **Least privilege** - Scripts request minimum required permissions
+Contributions, issues, and feature requests are welcome.
 
-### Compliance Tested
-- ✅ **SOC2** - Audit trail and logging requirements met
-- ✅ **GDPR** - Data handling in compliance with regulations
+1. Fork the repository
+2. Create feature branch
+3. Test thoroughly in isolated environment
+4. Submit pull request with detailed description
 
-### Production Environment Usage
-These scripts are actively used in:
-- 🏢 Enterprise corporations (200+ employees)
-- 🏨 Hospitality industry (multi-property deployments)
+## License
 
----
+MIT License - See [LICENSE](./LICENSE) file for details.
 
-## 📚 Documentation
+Copyright (c) 2026 Sudeep Gyawali
 
-Each folder contains its own detailed README with:
-- 📖 **Complete usage instructions**
-- ⚙️ **Parameter explanations**
-- 💡 **Real-world examples**
-- ⚠️ **Caveats and considerations**
-- 🔧 **Troubleshooting guides**
-
-**Navigate to specific folders:**
-- [Browser-Link Documentation](./Browser-Link/README.md)
-- [Hardwarehash Export Documentation](./Hardwarehash%20Export/README.md)
-- [Windows Scripts Documentation](./Windows/README.md)
-
----
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome!
-
-### How to Contribute
-1. 🍴 **Fork** this repository
-2. 🔨 **Create** a feature branch (`git checkout -b feature/AmazingFeature`)
-3. ✍️ **Commit** your changes (`git commit -m 'Add some AmazingFeature'`)
-4. 📤 **Push** to the branch (`git push origin feature/AmazingFeature`)
-5. 🎉 **Open** a Pull Request
-
-### Contribution Guidelines
-- Maintain PowerShell best practices (use approved verbs, proper error handling)
-- Add comprehensive inline comments
-- Update relevant README files
-- Test in isolated environment before submitting
-- Follow existing code style and structure
-
----
-
-## 🐛 Issues & Support
-
-Found a bug or have a question?
-
-1. **Check existing issues** - Your question might already be answered
-2. **Search documentation** - Each folder has detailed README
-3. **Open new issue** - Use the [GitHub issue tracker](https://github.com/sudeeplfc07/windows-infra-automation/issues)
-
-When reporting issues, please include:
-- PowerShell version (`$PSVersionTable.PSVersion`)
-- Windows version
-- Error messages (full text)
-- Steps to reproduce
-- Expected vs. actual behavior
-
----
-
-### Feature Requests
-Have an idea? [Open an issue](https://github.com/sudeeplfc07/windows-infra-automation/issues) with the `enhancement` label.
-
----
-
-## 📄 License
-
-This project is licensed under the **MIT License**.
-
-See the [LICENSE](./LICENSE) file for full details.
-
-**TL;DR:** You can use, modify, and distribute this code freely, even for commercial purposes. Just include the original license and copyright notice.
-
----
-
-## 👤 Author
+## Author
 
 **Sudeep Gyawali**
 
 Network & Cloud Infrastructure Engineer specializing in:
 - Windows endpoint automation and management
 - Microsoft 365 & Azure cloud services
-- Zero-downtime cloud migrations
-- Enterprise network architecture
-- Security & compliance automation
+- Zero-touch device provisioning
+- Enterprise infrastructure automation
 
-### Connect With Me
+**Connect:**
+- [LinkedIn](https://www.linkedin.com/in/sudeep-gyawali-089524110/)
+- [GitHub](https://github.com/sudeeplfc07)
+- Email: sudeeplfc07@gmail.com
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/sudeep-gyawali-089524110/)
-[![GitHub](https://img.shields.io/badge/GitHub-Follow-181717?style=for-the-badge&logo=github)](https://github.com/sudeeplfc07)
-[![Email](https://img.shields.io/badge/Email-Contact-D14836?style=for-the-badge&logo=gmail)](mailto:sudeeplfc07@gmail.com)
+## Repository Information
 
----
-
-## ⭐ Show Your Support
-
-If these scripts saved you time or solved a problem:
-
-- ⭐ **Star this repository**
-- 🍴 **Fork it** for your own use
-- 📢 **Share** with your network
-- 🐛 **Report issues** or suggest improvements
-- 💬 **Leave feedback** on what worked well
-
-**Your feedback helps make these tools better for everyone!**
-
----
-
-## 🙏 Acknowledgments
-
-- Microsoft Graph PowerShell SDK team
-- Windows Autopilot community
-- PowerShell community for best practices
-- All the IT admins who've shared their knowledge
-
----
-
-<div align="center">
-
-**Built with ☕ and PowerShell in Sydney, Australia**
-
-![Made with PowerShell](https://img.shields.io/badge/Made%20with-PowerShell-5391FE?style=flat-square&logo=powershell)
-![Made in Sydney](https://img.shields.io/badge/Made%20in-Sydney%2C%20Australia-success?style=flat-square)
-
-</div>
-
----
-
-## 📊 Repository Statistics
-
-![GitHub repo size](https://img.shields.io/github/repo-size/sudeeplfc07/windows-infra-automation)
-![GitHub code size](https://img.shields.io/github/languages/code-size/sudeeplfc07/windows-infra-automation)
-![GitHub last commit](https://img.shields.io/github/last-commit/sudeeplfc07/windows-infra-automation)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/m/sudeeplfc07/windows-infra-automation)
-
----
-
-**Keywords for Discoverability:**
-PowerShell automation, Windows endpoint management, Intune, Autopilot, Microsoft 365, Azure, Windows 10, Windows 11, IT automation, enterprise deployment, MDM, device management, compliance automation, browser shortcuts, HWID collection, Windows Hello, profile cleanup, SysAdmin tools
+- **Language:** PowerShell (97.2%), Batchfile (2.8%)
+- **License:** MIT
+- **Topics:** windows, powershell, automation, winops, intune, autopilot, m365, endpoint-management, entra-idcompliance automation, browser shortcuts, HWID collection, Windows Hello, profile cleanup, SysAdmin tools
 
 ## License
 Licensed under the MIT License. See the [LICENSE](../LICENSE) file in the repo root for details.
