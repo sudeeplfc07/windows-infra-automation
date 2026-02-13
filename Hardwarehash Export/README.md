@@ -6,8 +6,6 @@ PowerShell script for collecting and uploading Windows Autopilot hardware hash t
 
 This script collects the hardware hash from the local device using MDM Bridge and uploads it directly to Windows Autopilot using app-only authentication. Optionally exports to CSV format.
 
-## Script: AutopilotUpload-AppOnly.ps1
-
 ### What It Does
 
 - Installs/imports `Microsoft.Graph.Authentication` module only
@@ -41,45 +39,6 @@ This script collects the hardware hash from the local device using MDM Bridge an
 | `AlsoWriteCsv` | Switch | No | Also export hardware hash to CSV file |
 
 **Note:** Either `ClientSecret` or `CertThumbprint` must be provided for app-only authentication.
-
-### Usage
-
-#### Using Client Secret
-```powershell
-.\AutopilotUpload-AppOnly.ps1 `
-    -TenantId "12345678-1234-1234-1234-123456789012" `
-    -ClientId "87654321-4321-4321-4321-210987654321" `
-    -ClientSecret "your-client-secret" `
-    -GroupTag "Corporate-Laptops"
-```
-
-#### Using Certificate
-```powershell
-.\AutopilotUpload-AppOnly.ps1 `
-    -TenantId "12345678-1234-1234-1234-123456789012" `
-    -ClientId "87654321-4321-4321-4321-210987654321" `
-    -CertThumbprint "A1B2C3D4E5F6A7B8C9D0E1F2A3B4C5D6E7F8A9B0" `
-    -GroupTag "Executive-Devices"
-```
-
-#### With CSV Export
-```powershell
-.\AutopilotUpload-AppOnly.ps1 `
-    -TenantId "12345678-1234-1234-1234-123456789012" `
-    -ClientId "87654321-4321-4321-4321-210987654321" `
-    -ClientSecret "your-client-secret" `
-    -GroupTag "IT-Department" `
-    -AlsoWriteCsv
-```
-
-#### With Product Key
-```powershell
-.\AutopilotUpload-AppOnly.ps1 `
-    -TenantId "12345678-1234-1234-1234-123456789012" `
-    -ClientId "87654321-4321-4321-4321-210987654321" `
-    -ClientSecret "your-client-secret" `
-    -ProductKey "XXXXX-XXXXX-XXXXX-XXXXX-XXXXX"
-```
 
 ### Output Files
 
