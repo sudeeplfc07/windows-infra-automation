@@ -13,7 +13,6 @@ PowerShell scripts for Windows endpoint management and Microsoft 365 administrat
 
 ---
 
-
 ## Overview
 
 Collection of PowerShell scripts for automating Windows endpoint configuration, Microsoft 365 identity management, application removal, and Windows Autopilot enrollment.
@@ -75,7 +74,7 @@ Cleans cached Microsoft 365 identity data and prevents auto MDM enrollment promp
 - Purges Windows Credentials by pattern matching
 - Shows dsregcmd join state (read-only)
 
-[Read Documentation →](./Windows/Profile-Identity-Cleanup/README.md)
+[Read Documentation →](./Windows/Cleanup/README.md)
 
 ---
 
@@ -95,7 +94,7 @@ Removes OEM bloatware and Microsoft consumer applications.
 - Edge PWA cleanup
 - Service and folder cleanup
 
-[Read Documentation →](./Windows/Default-App-Removal/README.md)
+[Read Documentation →](./Windows/Default-App/README.md)
 
 ---
 
@@ -110,7 +109,7 @@ Disables Windows Hello for Business and removes existing PIN/NGC data.
 - Stops/restarts Passport services
 - Takes ownership and removes NGC folder with optional backup
 
-[Read Documentation →](./Windows/Windows-Hello-Management/README.md)
+[Read Documentation →](./Windows/Windows-Hello/README.md)
 
 ---
 
@@ -164,16 +163,16 @@ cd Windows
 .\InstallApp.ps1 -Name "App" -Url "https://example.com" -IconLocation ".\app.ico" -UseAppWindow
 
 # Example: Upload Autopilot HWID
-.\AutopilotUpload-AppOnly.ps1 -TenantId "xxx" -ClientId "xxx" -ClientSecret "xxx" -GroupTag "Corporate"
+.\HardwareHash_Export.ps1 -TenantId "xxx" -ClientId "xxx" -ClientSecret "xxx" -GroupTag "Corporate"
 
 # Example: Clean M365 identity
-.\Clean-M365Identity.ps1
+.\CleanUP-WindowsProfile.ps1
 
 # Example: Remove bloatware
-.\Uninstallapps-Full.ps1
+.\Remove-DefaultApps.ps1
 
 # Example: Disable Windows Hello
-.\Disable-WindowsHello.ps1
+.\Remove-WindowsHello.ps1
 ```
 
 ## Documentation
@@ -194,51 +193,6 @@ Scripts create logs in their respective locations:
 | InstallApp.ps1 / UninstallApp.ps1 | `%ProgramData%\GenericApp\` |
 | Uninstallapps-Full.ps1 | `C:\ProgramData\Intune\Logs\` (configurable) |
 | Other Windows scripts | Console output only |
-
-## Common Use Cases
-
-### Autopilot Device Enrollment
-```powershell
-# Collect HWID and upload to Intune
-cd "Hardwarehash Export"
-.\AutopilotUpload-AppOnly.ps1 `
-    -TenantId "your-tenant-id" `
-    -ClientId "your-app-id" `
-    -ClientSecret "your-secret" `
-    -GroupTag "Corporate-Laptops"
-```
-
-### Deploy Web Application Shortcuts
-```powershell
-# Create Salesforce shortcut
-cd Browser-Link
-.\InstallApp.ps1 `
-    -Name "Salesforce" `
-    -Url "https://company.salesforce.com" `
-    -IconLocation ".\salesforce.ico" `
-    -UseAppWindow
-```
-
-### Tenant-to-Tenant Migration Cleanup
-```powershell
-# Clean M365 identity after migration
-cd Windows
-.\Clean-M365Identity.ps1
-```
-
-### Corporate Image Cleanup
-```powershell
-# Remove bloatware from new devices
-cd Windows
-.\Uninstallapps-Full.ps1
-```
-
-### HIPAA Compliance
-```powershell
-# Disable biometric authentication
-cd Windows
-.\Disable-WindowsHello.ps1
-```
 
 ## Security Notes
 
@@ -266,12 +220,6 @@ Contributions, issues, and feature requests are welcome.
 3. Test thoroughly in isolated environment
 4. Submit pull request with detailed description
 
-## License
-
-MIT License - See [LICENSE](./LICENSE) file for details.
-
-Copyright (c) 2026 Sudeep Gyawali
-
 ## Author
 
 **Sudeep Gyawali**
@@ -294,4 +242,7 @@ Network & Cloud Infrastructure Engineer specializing in:
 - **Topics:** windows, powershell, automation, winops, intune, autopilot, m365, endpoint-management, entra-idcompliance automation, browser shortcuts, HWID collection, Windows Hello, profile cleanup, SysAdmin tools
 
 ## License
-Licensed under the MIT License. See the [LICENSE](../LICENSE) file in the repo root for details.
+
+MIT License - See [LICENSE](./LICENSE) file for details.
+
+Copyright (c) 2026 Sudeep Gyawali
